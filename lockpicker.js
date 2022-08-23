@@ -1,6 +1,8 @@
 import {Lock} from '/Lock.js'
 const lDisplay = document.getElementById("levelDisplay");
 const select = document.getElementById("difficultySelecter");
+
+const timer = 10; //seconds
 let playerLevel = 3; //set by player
 let lock = new Lock(playerLevel);
 
@@ -149,7 +151,21 @@ function getNewLock(level){
     lock = new Lock(level)
 }
 
+let timeHolder = document.getElementById("timeHolder");
+let counter;
+let inter;
 function moveNextPin(){
+    if(currentPin == 0){
+        counter = 0;
+        inter = setInterval(() => {
+            counter = counter + 0.1;
+            timeHolder.innerText = stripNumber(timer-counter);
+            if(counter >= 10){
+                timeHolder.innerText = "x"
+                resetPins();
+            }
+        }, 100);
+    }
     document.getElementById(currentPin).innerText = "✔️";
     currentPin++;
     if(currentPin == lock.level){
@@ -157,6 +173,8 @@ function moveNextPin(){
         getNewLock(playerLevel);
         currentPin = 0;
         generateLockDisplay();
+        clearInterval(inter);
+        timeHolder.innerText = "x";
     }else{
         pinSound.play();
 
@@ -164,6 +182,10 @@ function moveNextPin(){
     
     reDrawCanvas();
     updateSweetspot();
+}
+
+function stripNumber(number){
+    return parseFloat(number).toPrecision(2)
 }
 
 function resetPins(){
@@ -174,6 +196,9 @@ function resetPins(){
     rightLocked = false;
     leftLocked = false;
     generateLockDisplay();
+    clearInterval(inter);
+    timeHolder.innerText = "x"
+
 }
 
 function updateSweetspot(){
