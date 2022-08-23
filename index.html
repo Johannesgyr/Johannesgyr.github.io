@@ -5,14 +5,24 @@
         <script src ="/lockpicker.js" type = "module"></script>
         <link rel="stylesheet" href="/style.css">
     </head>
-
     <body>
-        <p>Lock level: --_insert_--</p>
-        <canvas id = "can" width="600" height="600"></canvas>
-        <ul id = "levelDisplay">
-            <li>hej</li>
-            <li>då</li>
-        </ul>
+        <p id = "legend">Legend:<br> LEFT CLICK the square to begin <br> 
+            LEFT CLICK to lock/unlock left lockpick <br> 
+            RIGHT CLICK to lock/unlock right lockpick <br>
+            F to attempt to pick the locck <br>
+            ESCAPE to get back control of cursor <br>
+            <br>
+            A lockpick becomes red when it is in the correct position
+        </p>
+        <div id = "main">
+            <p>Lock level: --_insert_--</p>
+            <canvas id = "can" width="600" height="600"></canvas>
+            <ul id = "levelDisplay">
+                <li>hej</li>
+                <li>då</li>
+            </ul>
+
+        </div>
 
     </body>
 </html>

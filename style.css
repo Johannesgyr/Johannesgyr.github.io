@@ -1,4 +1,13 @@
-body{
+*{
+    padding: 0;
+    margin: 0;
+}
+#legend{
+    padding: 30px;
+
+}
+
+#main{
     position: fixed;
     left: 50%;
     top: 50%;
