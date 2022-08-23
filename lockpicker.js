@@ -30,7 +30,7 @@ document.addEventListener('pointerlockchange', (event) =>{
     canvasActive = !canvasActive;
 })
 
-const marginOfError = 5;
+const marginOfError = 25;
 
 let sweetSpotXFound = false;
 let sweetSpotYFound = false;
