@@ -7,86 +7,78 @@ ctx.font = "13px Arial";
 
 let pinSound = new Audio('assets/pin.mp3');
 let breakSound = new Audio('assets/break.mp3');
+let unlockSound = new Audio('assets/unlock.mp3');
 
 
-canvas.addEventListener("click", (event) => {
-    if(!canvasActive){
-        canvas.requestPointerLock()
-    }
-})
 
 document.addEventListener('pointerlockchange', (event) =>{
     canvasActive = !canvasActive;
 })
 
-const marginOfError = 500;
-const borderSize = 2500;
+let playerLevel = 3; //set by player
 
-let sweetSpotFound = false;
-let currentX = 0;
-let currentY = 0;
-let lock = new Lock(1, borderSize)
+const marginOfError = 5;
+
+let sweetSpotXFound = false;
+let sweetSpotYFound = false;
+let currentPin = 0;
+let lock = new Lock(playerLevel);
 
 let sweetSpotX = lock.pins[0].XPos;
 let sweetSpotY = lock.pins[0].YPos;
 
 let thetaRight = 0
 let thetaLeft = 90;
+
+let rightLocked = false;
+let leftLocked = false;
+
+const r = 250;
+const x = 300;
+const y = x;
 canvas.addEventListener("mousemove", (event) =>{
     if(canvasActive){
-        if(event.movementX < 0){
-            currentX = Math.max(-borderSize, currentX + event.movementX)
-        }else if(event.movementX > 0){
-            currentX = Math.min(borderSize, currentX + event.movementX)
-        }
-        if(event.movementY < 0 ){
-            currentY = Math.max(-borderSize, currentY + event.movementY);
-        }else if(event.movementY > 0){
-            currentY = Math.min(borderSize, currentY + event.movementY)
-        }
         ctx.clearRect(0, 0, canvas.clientWidth, canvas.height)
-        if(currentX - sweetSpotX < marginOfError && currentX - sweetSpotX > -marginOfError && currentY - sweetSpotY < marginOfError && currentY - sweetSpotY > -marginOfError){
-            sweetSpotFound = true;
-            console.log("bingo")
-            ctx.fillStyle = "red";
-
-        }else{
-            sweetSpotFound = false;
-            ctx.fillStyle = "black";
-        }
-        /*
-        ctx.fill();
-        ctx.fillText("Current X: " + currentX, 10, 20)
-        ctx.fillText("Current Y: " + currentY, 10, 40)
-        ctx.fillText("Target X: " + sweetSpotX, 10, 80)
-        ctx.fillText("Target Y: " + sweetSpotY, 10, 100)
-        */
+        ctx.strokeStyle = 'black';
         ctx.beginPath();
-        ctx.arc(400, 400, 150, 0, 2 * Math.PI);
-        ctx.moveTo(400, 250)
-        ctx.lineTo(400, 550)
+        ctx.arc(x, y, 150, 0, 2 * Math.PI);
+        ctx.moveTo(x, x-150)
+        ctx.lineTo(x, x+150)
+        ctx.stroke();
 
-        let r = 250;
-        let x = 400;
-        let y = 400;
         //right side line
-        if(event.movementX > 0){
+        if(event.movementX > 0 && !rightLocked){
             thetaRight = incrementAngle(thetaRight, 90);
-        }else if(event.movementX < 0){
+        }else if(event.movementX < 0 && !rightLocked){
             thetaRight = decrementAngle(thetaRight, -90)
         }
 
-        if(event.movementY > 0){
+        sweetSpotXFound = checkSweetSpot(thetaRight, sweetSpotX);
+        if(sweetSpotXFound){
+            ctx.strokeStyle = 'red';
+        }
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + r * Math.cos(Math.PI * thetaRight/180.0), y + r * Math.sin(Math.PI * thetaRight/180.0))
+        ctx.stroke();
+        ctx.strokeStyle = 'black';
+        //left side line
+        if(event.movementY < 0 && !leftLocked){
             thetaLeft = incrementAngle(thetaLeft, 270)
-        }else if(event.movementY < 0){
+        }else if(event.movementY > 0 && !leftLocked){
             thetaLeft = decrementAngle(thetaLeft, 90)
         }
-        ctx.moveTo(400, 400)
-        ctx.lineTo(x + r * Math.cos(Math.PI * thetaRight/180.0), y + r * Math.sin(Math.PI * thetaRight/180.0))
-        //left side line
-        ctx.moveTo(400, 400)
+        sweetSpotYFound = checkSweetSpot(thetaLeft, sweetSpotY);
+        if(sweetSpotYFound){
+            ctx.strokeStyle = 'red';
+        }
+        ctx.beginPath();
+        ctx.moveTo(x, x)
         ctx.lineTo(x + r * Math.cos(Math.PI * thetaLeft/180.0), y + r * Math.sin(Math.PI * thetaLeft/180.0))
         ctx.stroke();
+
+        
+
     }
 })
 
@@ -105,19 +97,92 @@ function decrementAngle(angle, limit){
     return newAngle;
 }
 
+function checkSweetSpot(currentAngle, currentSweetspot){
+    if(currentAngle - currentSweetspot < marginOfError && currentAngle - currentSweetspot > -marginOfError){
+        return true;
+    }else{
+        return false;
+    }
+}
+
 document.addEventListener("keydown", (event)=>{
     if(event.key == 'f' || event.key == 'F'){
-        if(sweetSpotFound){
-            pinSound.play()
+        if(sweetSpotXFound && sweetSpotYFound){
+            moveNextPin();
             //next pin or next lock
         }else{
-            breakSound.play();
-            //reset pins
+            resetPins();
         }
+        leftLocked = false;
+        rightLocked = false;
+        sweetSpotXFound = false;
     }
 
 })
 
+canvas.addEventListener("click", (event) => {
+    if(!canvasActive){
+        canvas.requestPointerLock()
+    }else{
+        if(event.button == 0){
+            leftLocked = !leftLocked;
+        }
+        if(event.button == 2){
+            rightLocked = !rightLocked;
+        }
+    }
+})
+
+function getNewLock(level){
+    lock = new Lock(level)
+}
+
+function moveNextPin(){
+    currentPin++;
+    if(currentPin == lock.level){
+        unlockSound.play();
+        getNewLock(playerLevel);
+        currentPin = 0;
+    }else{
+        pinSound.play();
+    }
+    
+    reDrawCanvas();
+    updateSweetspot();
+}
+
+function resetPins(){
+    currentPin = 0;
+    breakSound.play();
+    reDrawCanvas();
+    updateSweetspot();
+}
+
+function updateSweetspot(){
+    sweetSpotX = lock.pins[currentPin].XPos;
+    sweetSpotY = lock.pins[currentPin].YPos;
+}
+
+function reDrawCanvas(){
+    ctx.clearRect(0, 0, canvas.clientWidth, canvas.height)
+    ctx.strokeStyle = 'black';
+    ctx.beginPath();
+    ctx.arc(x, y, 150, 0, 2 * Math.PI);
+    ctx.moveTo(x, x-150)
+    ctx.lineTo(x, x+150)
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(x, x);
+    ctx.lineTo(x + r * Math.cos(Math.PI * thetaRight/180.0), y + r * Math.sin(Math.PI * thetaRight/180.0))
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(x, x)
+    ctx.lineTo(x + r * Math.cos(Math.PI * thetaLeft/180.0), y + r * Math.sin(Math.PI * thetaLeft/180.0))
+    ctx.stroke();
 
 
+
+}
 

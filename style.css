@@ -1,7 +1,17 @@
-canvas{
-    border: solid black 1px;
+body{
     position: fixed;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+}
+canvas{
+    border: solid black 1px;
+}
+
+#levelDisplay{
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    padding: 0%;
 }
