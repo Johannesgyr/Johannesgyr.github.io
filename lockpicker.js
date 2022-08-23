@@ -1,4 +1,19 @@
 import {Lock} from '/Lock.js'
+const lDisplay = document.getElementById("levelDisplay");
+const select = document.getElementById("difficultySelecter");
+let playerLevel = 3; //set by player
+let lock = new Lock(playerLevel);
+
+for (let i = 0; i < playerLevel; i++) {
+    const element = playerLevel  
+}
+
+select.addEventListener("change", (event) => {
+    playerLevel = event.target.value;
+    lock = new Lock(playerLevel);
+    resetPins();
+    generateLockDisplay();
+});
 
 let canvasActive = false;
 let canvas = document.getElementById("can");
@@ -15,14 +30,11 @@ document.addEventListener('pointerlockchange', (event) =>{
     canvasActive = !canvasActive;
 })
 
-let playerLevel = 3; //set by player
-
 const marginOfError = 5;
 
 let sweetSpotXFound = false;
 let sweetSpotYFound = false;
 let currentPin = 0;
-let lock = new Lock(playerLevel);
 
 let sweetSpotX = lock.pins[0].XPos;
 let sweetSpotY = lock.pins[0].YPos;
@@ -138,13 +150,16 @@ function getNewLock(level){
 }
 
 function moveNextPin(){
+    document.getElementById(currentPin).innerText = "✔️";
     currentPin++;
     if(currentPin == lock.level){
         unlockSound.play();
         getNewLock(playerLevel);
         currentPin = 0;
+        generateLockDisplay();
     }else{
         pinSound.play();
+
     }
     
     reDrawCanvas();
@@ -156,6 +171,9 @@ function resetPins(){
     breakSound.play();
     reDrawCanvas();
     updateSweetspot();
+    rightLocked = false;
+    leftLocked = false;
+    generateLockDisplay();
 }
 
 function updateSweetspot(){
@@ -181,8 +199,18 @@ function reDrawCanvas(){
     ctx.moveTo(x, x)
     ctx.lineTo(x + r * Math.cos(Math.PI * thetaLeft/180.0), y + r * Math.sin(Math.PI * thetaLeft/180.0))
     ctx.stroke();
+}
 
-
+function generateLockDisplay(){
+    lDisplay.innerHTML = '';
+    for (let i = 0; i < playerLevel; i++) {
+        let pinDisplay = document.createElement("li");
+        pinDisplay.id = i;
+        pinDisplay.textContent = "⬛";
+        lDisplay.appendChild(pinDisplay);
+        
+    }
 
 }
 
+generateLockDisplay();

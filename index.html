@@ -6,6 +6,15 @@
         <link rel="stylesheet" href="/style.css">
     </head>
     <body>
+        <label for="difficulty">Difficulty</label>
+        <select name = "difficulty" id = "difficultySelecter">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+        </select>
         <p id = "legend">Legend:<br> LEFT CLICK the square to begin <br> 
             LEFT CLICK to lock/unlock left lockpick <br> 
             RIGHT CLICK to lock/unlock right lockpick <br>
@@ -18,8 +27,6 @@
             <p>Lock level: --_insert_--</p>
             <canvas id = "can" width="600" height="600"></canvas>
             <ul id = "levelDisplay">
-                <li>hej</li>
-                <li>då</li>
             </ul>
 
         </div>
